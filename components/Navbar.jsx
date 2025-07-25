@@ -23,7 +23,7 @@ const Navbar = () => {
           </Link>
           <li className={styles.listItem}>Products</li>
           <li className={styles.listItem}>Menu</li>
-          <Image src="/img/noordon.png" alt="" width="320px" height="320px" />
+          <Image src="/img/noordon.png" alt="Noordon Logo" width={140} height={140} />
           <li className={styles.listItem}>Events</li>
           <li className={styles.listItem}>Blog</li>
           <li className={styles.listItem}>Contact</li>

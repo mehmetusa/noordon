@@ -28,7 +28,7 @@ const Add = ({ setClose }) => {
   const handleCreate = async () => {
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "uploads");
+    data.append("upload_preset", "noordon");
     try {
       const uploadRes = await axios.post(
         "https://api.cloudinary.com/v1_1/dcjz84xa8/image/upload",
