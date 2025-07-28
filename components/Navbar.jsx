@@ -2,9 +2,13 @@ import Image from "next/image";
 import styles from "../styles/Navbar.module.css";
 import { useSelector } from "react-redux";
 import Link from "next/link";
+import { useState } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 const Navbar = () => {
   const quantity = useSelector((state) => state.cart.quantity);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className={styles.container}>
       <div className={styles.item}>
@@ -16,23 +20,49 @@ const Navbar = () => {
           <div className={styles.text}>202-844-9087</div>
         </div>
       </div>
+
       <div className={styles.item}>
-        <ul className={styles.list}>
-          <Link href="/" passHref>
-            <li className={styles.listItem}>Homepage</li>
+        <ul className={`${styles.list} ${menuOpen ? styles.active : ""}`}>
+   
+          <Link href="/products" passHref>
+            <li className={styles.listItem}>Products</li>
           </Link>
-          <li className={styles.listItem}>Products</li>
-          <li className={styles.listItem}>Menu</li>
-          <Image src="/img/noordon.png" alt="Noordon Logo" width={140} height={140} />
-          <li className={styles.listItem}>Events</li>
-          <li className={styles.listItem}>Blog</li>
-          <li className={styles.listItem}>Contact</li>
+          <Link href="/catering" passHref>
+            <li className={styles.listItem}>Catering</li>
+          </Link>
+          <Link href="/admin">Admin</Link>
+
+          <Link href="/" passHref>
+            <li className={styles.listItem}>     <Image
+            className={styles.logo}
+            src="/img/noordon.png"
+            alt="Noordon Logo"
+            width={140}
+            height={140}
+          /></li>
+          </Link>
+     
+               <Link href="/contact" passHref>
+            <li className={styles.listItem}>Contact</li>
+          </Link>
+
+
+          {/* NEW LOGIN LINK */}
+          <Link href="/login" passHref>
+            <li className={styles.listItem}>Login</li>
+          </Link>
         </ul>
+
+        {/* Hamburger menu icon for mobile */}
+        <div className={styles.mobileMenuIcon} onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <FaTimes color="white" size={25} /> : <FaBars color="white" size={25} />}
+        </div>
       </div>
+
       <Link href="/cart" passHref>
         <div className={styles.item}>
           <div className={styles.cart}>
-            <Image src="/img/cart.png" alt="" width="30px" height="30px" />
+            <Image src="/img/cart.png" alt="" width="30" height="30" />
             <div className={styles.counter}>{quantity}</div>
           </div>
         </div>

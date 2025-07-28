@@ -1,16 +1,35 @@
+import { getSession, useSession, signOut } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 import axios from "axios";
 import Image from "next/image";
 import { useState } from "react";
-import styles from "../../styles/Admin.module.css";
+import styles from "../styles/Admin.module.css";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 
 
-const Index = ({ orders, products }) => {
+const Admin = ({ orders, products }) => {
   const [pizzaList, setPizzaList] = useState(products);
   const [orderList, setOrderList] = useState(orders);
   const status = ["preparing", "on the way", "delivered"];
+  const { data: session } = useSession();
+  const router = useRouter();
+  if (status === "loading") return <p>Loading...</p>;
+  if (!session || session.user.name !== "admin") return <p>Unauthorized</p>;
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/login");
+    } else if (session?.user?.name !== "admin") {
+      router.push("/");
+    }
+  }, [session, router]);
+
+  if (!session || session?.user?.name !== "admin") {
+    return <p>Loading or unauthorized...</p>;
+  }
 
   const handleDelete = async (id) => {
     console.log(id);
@@ -42,6 +61,15 @@ const Index = ({ orders, products }) => {
 
   return (
     <div className={styles.container}>
+          <div style={{ padding: "2rem" }}>
+      <h1>Welcome Admin</h1>
+      <p>You are logged in as: {session.user.name}</p>
+
+
+      <button onClick={() => signOut()} style={{ marginTop: "1rem" }}>
+        Logout
+      </button>
+    </div>
       <div className={styles.item}>
         <h1 className={styles.title}>Products</h1>
         <table className={styles.table}>
@@ -122,7 +150,7 @@ const Index = ({ orders, products }) => {
 
 export const getServerSideProps = async (ctx) => {
   const myCookie = ctx.req?.cookies || "";
-
+console.log("my koki",myCookie);
   if (myCookie.token !== process.env.TOKEN) {
     return {
       redirect: {
@@ -143,4 +171,4 @@ export const getServerSideProps = async (ctx) => {
   };
 };
 
-export default Index;
+export default Admin;
