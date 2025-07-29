@@ -4,10 +4,13 @@ import { useSelector } from "react-redux";
 import Link from "next/link";
 import { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { useSession } from "next-auth/react";
+
 
 const Navbar = () => {
   const quantity = useSelector((state) => state.cart.quantity);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   return (
     <div className={styles.container}>
@@ -30,7 +33,12 @@ const Navbar = () => {
           <Link href="/catering" passHref>
             <li className={styles.listItem}>Catering</li>
           </Link>
-          <Link href="/admin">Admin</Link>
+          {status === "authenticated" || session?.user?.name === "admin" && (
+          <Link href="/admin" passHref>
+            <li className={styles.listItem}>Admin</li>
+          </Link>
+        )}
+      
 
           <Link href="/" passHref>
             <li className={styles.listItem}>     <Image
