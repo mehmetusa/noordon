@@ -17,16 +17,20 @@ const Cart = () => {
   const [open, setOpen] = useState(false);
   const [cash, setCash] = useState(false);
   const amount = cart.total;
+  const method = null;
   const currency = "USD";
   const style = { layout: "vertical" };
   const dispatch = useDispatch();
   const router = useRouter();
+let data1={};
+data1[amount]=cart.total;
+data1[method]=cash===true ? 1 :2;
 
   const API = process.env.NEXT_PUBLIC_API_URL;
 
-  const createOrder = async (data) => {
+  const createOrder = async (data1) => {
     try {
-      const res = await axios.post(`${API}/api/orders`, data);
+      const res = await axios.post(`${API}/api/orders`, data1);
       if (res.status === 201) {
         dispatch(reset());
         router.push(`/orders/${res.data._id}`);
@@ -77,7 +81,7 @@ const Cart = () => {
                 return orderId;
               });
           }}
-          onApprove={function (data, actions) {
+          onApprove={function (data1, actions) {
             return actions.order.capture().then(function (details) {
               const shipping = details.purchase_units[0].shipping;
               createOrder({

@@ -1,59 +1,44 @@
+// pages/admin/index.jsx
+import { useState } from "react";
 import { getSession, useSession, signOut } from "next-auth/react";
-import { useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Image from "next/image";
-import { useState } from "react";
 import styles from "../styles/Admin.module.css";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-
-
-const Admin = ({ orders, products }) => {
+const AdminPage = ({ orders, products }) => {
+  const { data: session, status: sessionStatus } = useSession();
+  const router = useRouter();
   const [pizzaList, setPizzaList] = useState(products);
   const [orderList, setOrderList] = useState(orders);
-  const status = ["preparing", "on the way", "delivered"];
-  const { data: session } = useSession();
-  const router = useRouter();
-  if (status === "loading") return <p>Loading...</p>;
-  if (!session || session.user.name !== "admin") return <p>Unauthorized</p>;
+  const statusList = ["preparing", "on the way", "delivered"];
 
-  useEffect(() => {
-    if (!session) {
-      router.push("/login");
-    } else if (session?.user?.name !== "admin") {
-      router.push("/");
-    }
-  }, [session, router]);
-
+  console.log("mehmet session",session);
+  // Redirect if not admin
+  if (sessionStatus === "loading") return <p>Loading...</p>;
   if (!session || session?.user?.name !== "admin") {
-    return <p>Loading or unauthorized...</p>;
+    router.push("/login");
+    return null;
   }
 
   const handleDelete = async (id) => {
-    console.log(id);
     try {
-      const res = await axios.delete(`${API}/api/products/` + id);
-
-      setPizzaList(pizzaList.filter((pizza) => pizza._id !== id));
+      await axios.delete(`${API}/api/products/${id}`);
+      setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
     } catch (err) {
       console.log(err);
     }
   };
 
   const handleStatus = async (id) => {
-    const item = orderList.filter((order) => order._id === id)[0];
-    const currentStatus = item.status;
-
+    const item = orderList.find((order) => order._id === id);
     try {
-      const res = await axios.put(`${API}/api/products/`+ id, {
-        status: currentStatus + 1,
+      const res = await axios.put(`${API}/api/orders/${id}`, {
+        status: item.status + 1,
       });
-      setOrderList([
-        res.data,
-        ...orderList.filter((order) => order._id !== id),
-      ]);
+      setOrderList([res.data, ...orderList.filter((order) => order._id !== id)]);
     } catch (err) {
       console.log(err);
     }
@@ -61,15 +46,15 @@ const Admin = ({ orders, products }) => {
 
   return (
     <div className={styles.container}>
-          <div style={{ padding: "2rem" }}>
-      <h1>Welcome Admin</h1>
-      <p>You are logged in as: {session.user.name}</p>
+      <div style={{ padding: "2rem" }}>
+        <h1>Welcome Admin</h1>
+        <p>You are logged in as: {session.user.name}</p>
+        <button onClick={() => signOut()} style={{ marginTop: "1rem" }}>
+          Logout
+        </button>
+      </div>
 
-
-      <button onClick={() => signOut()} style={{ marginTop: "1rem" }}>
-        Logout
-      </button>
-    </div>
+      {/* Products table */}
       <div className={styles.item}>
         <h1 className={styles.title}>Products</h1>
         <table className={styles.table}>
@@ -90,8 +75,8 @@ const Admin = ({ orders, products }) => {
                     src={product.img}
                     width={50}
                     height={50}
-                    objectFit="cover"
-                    alt=""
+                    style={{ objectFit: "cover" }}
+                    alt={product.title}
                   />
                 </td>
                 <td>{product._id.slice(0, 5)}...</td>
@@ -111,6 +96,8 @@ const Admin = ({ orders, products }) => {
           ))}
         </table>
       </div>
+
+      {/* Orders table */}
       <div className={styles.item}>
         <h1 className={styles.title}>Orders</h1>
         <table className={styles.table}>
@@ -130,14 +117,10 @@ const Admin = ({ orders, products }) => {
                 <td>{order._id.slice(0, 5)}...</td>
                 <td>{order.customer}</td>
                 <td>${order.total}</td>
+                <td>{order.method === 0 ? "cash" : "paid"}</td>
+                <td>{statusList[order.status]}</td>
                 <td>
-                  {order.method === 0 ? <span>cash</span> : <span>paid</span>}
-                </td>
-                <td>{status[order.status]}</td>
-                <td>
-                  <button onClick={() => handleStatus(order._id)}>
-                    Next Stage
-                  </button>
+                  <button onClick={() => handleStatus(order._id)}>Next Stage</button>
                 </td>
               </tr>
             </tbody>
@@ -149,9 +132,9 @@ const Admin = ({ orders, products }) => {
 };
 
 export const getServerSideProps = async (ctx) => {
-  const myCookie = ctx.req?.cookies || "";
-console.log("my koki",myCookie);
-  if (myCookie.token !== process.env.TOKEN) {
+  const session = await getSession(ctx);
+
+  if (!session || session.user.name !== "admin") {
     return {
       redirect: {
         destination: "/login",
@@ -171,4 +154,4 @@ console.log("my koki",myCookie);
   };
 };
 
-export default Admin;
+export default AdminPage;
