@@ -10,12 +10,10 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Redirect based on session role
   useEffect(() => {
-    if (router.pathname !== "/login") return; // only redirect if on login page
     if (status !== "authenticated") return;
-    if (session?.user?.role === "admin") router.push("/admin");
-    else if (session?.user?.role === "user") router.push("/user");
+    if (session.user.role === "admin") router.replace("/admin");
+    else if (session.user.role === "user") router.replace("/user");
   }, [status, session, router]);
 
   const handleSubmit = async (e) => {
@@ -26,13 +24,7 @@ export default function Login() {
       password,
     });
 
-    if (!res.error) {
-      // redirect after successful login
-      if (username === process.env.NEXT_PUBLIC_ADMIN_USERNAME) router.push("/admin");
-      else router.push("/user");
-    } else {
-       alert("Invalid credentials");
-    }
+    if (res.error) alert("Invalid credentials");
   };
 
   const handleGoogleLogin = () => signIn("google", { callbackUrl: "/user" });
@@ -43,7 +35,6 @@ export default function Login() {
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.title}>Login</h1>
-
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
             style={styles.input}
@@ -66,7 +57,6 @@ export default function Login() {
         </form>
 
         <p style={styles.orText}>OR</p>
-
         <button style={styles.googleButton} onClick={handleGoogleLogin}>
           Sign in with Google
         </button>

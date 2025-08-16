@@ -5,8 +5,10 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Image from "next/image";
 import styles from "../styles/Admin.module.css";
+import { useEffect } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
+
 
 const AdminPage = ({ orders, products }) => {
   const { data: session, status: sessionStatus } = useSession();
@@ -15,12 +17,21 @@ const AdminPage = ({ orders, products }) => {
   const [orderList, setOrderList] = useState(orders);
   const statusList = ["preparing", "on the way", "delivered"];
 
-  // Redirect if not admin
-  if (sessionStatus === "loading") return <p>Loading...</p>;
-  if (!session || session?.user?.role !== "admin") {
-    router.push("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session || session.user.role !== "admin") router.push("/login");
+  }, [status, session, router]);
+
+  if (status === "loading") return <p>Loading...</p>;
+  if (!session || session.user.role !== "admin") return null;
+
+
+  // // Redirect if not admin
+  // if (sessionStatus === "loading") return <p>Loading...</p>;
+  // if (!session || session?.user?.role !== "admin") {
+  //   router.push("/login");
+  //   return null;
+  // }
 
   const handleDelete = async (id) => {
     try {

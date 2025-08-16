@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
 
 export default NextAuth({
   providers: [
@@ -11,36 +10,35 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        // Admin account
         if (
-          credentials.username === process.env.ADMIN_USERNAME &&
-          credentials.password === process.env.ADMIN_PASSWORD
+          credentials.username === process.env.NEXT_PUBLIC_ADMIN_USERNAME &&
+          credentials.password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD
         ) {
-          return { name: "admin", role: "admin" };
+          return { name: "Admin", role: "admin" };
         }
-        // Regular user example
-        if (credentials.username === "user" && credentials.password === "user123") {
-          return { name: "user", role: "user" };
+
+        // Example normal user
+        if (credentials.username === "user" && credentials.password === "user") {
+          return { name: "User", role: "user" };
         }
-        return null; // login failed
+
+        return null; // invalid credentials
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
   ],
-  pages: {
-    signIn: "/login",
-  },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.user = user;
+      if (user?.role) token.role = user.role;
       return token;
     },
     async session({ session, token }) {
-      session.user = token.user;
+      if (token?.role) session.user.role = token.role;
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/login",
+  },
+  session: { strategy: "jwt" },
 });

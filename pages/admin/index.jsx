@@ -1,40 +1,24 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]";
-import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-export default function Admin({ products, orders }) {
-  const [pizzaList, setPizzaList] = useState(products);
-  const [orderList, setOrderList] = useState(orders);
+export default function Admin() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session || session.user.role !== "admin") router.replace("/login");
+  }, [status, session, router]);
+
+  if (status === "loading") return <p>Loading...</p>;
+  if (!session || session.user.role !== "admin") return null;
 
   return (
     <div>
       <h1>Admin Panel</h1>
-      <p>Products: {pizzaList.length}</p>
-      <p>Orders: {orderList.length}</p>
-      {/* Add your table and buttons here */}
+      <p>Welcome, {session.user.name}</p>
+      <button onClick={() => signOut()}>Logout</button>
     </div>
   );
-}
-
-export async function getServerSideProps(ctx) {
-  const session = await getServerSession(ctx.req, ctx.res, authOptions);
-
-  if (!session || session?.user?.role !== "admin") {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-
-  const productRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
-  const orderRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`);
-
-  return {
-    props: {
-      products: await productRes.json(),
-      orders: await orderRes.json(),
-    },
-  };
 }
