@@ -12,8 +12,8 @@ export default NextAuth({
       async authorize(credentials) {
         // Admin account
         if (
-          credentials.username === process.env.NEXT_PUBLIC_ADMIN_USERNAME &&
-          credentials.password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD
+          credentials.username === process.env.ADMIN_USERNAME &&
+          credentials.password === process.env.ADMIN_PASSWORD
         ) {
           return { name: "Admin", role: "admin" };
         }
