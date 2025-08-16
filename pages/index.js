@@ -7,8 +7,6 @@ import Add from "../components/Add";
 import Featured from "../components/Featured";
 // import PizzaList from "../components/PizzaList";
 import styles from "../styles/Home.module.css";
-import Admin from "./admin2";
-// import Admin2 from "pages/admin/Index";
 export default function Home({ pizzaList, admin }) {
   const [close, setClose] = useState(true);
   return (
@@ -23,7 +21,6 @@ export default function Home({ pizzaList, admin }) {
       <PizzaList pizzaList={pizzaList} /> */}
       {!close && <Add setClose={setClose} />}
        {/* <Admin/> */}
-       {/* <Admin2/> */}
     </div>
   );
 }
