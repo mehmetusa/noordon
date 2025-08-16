@@ -12,6 +12,7 @@ export default function Login() {
 
   // Redirect based on session role
   useEffect(() => {
+    if (router.pathname !== "/login") return; // only redirect if on login page
     if (status !== "authenticated") return;
     if (session?.user?.role === "admin") router.push("/admin");
     else if (session?.user?.role === "user") router.push("/user");
