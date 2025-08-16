@@ -1,40 +1,85 @@
-import { getCsrfToken, signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
-export default function SignIn({ csrfToken }) {
+export default function Login() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  const getErrorMessage = (error) => {
-    const errors = {
-      CredentialsSignin: "Invalid username or password",
-      default: "An unknown error occurred",
-    };
-    return errors[error] || errors.default;
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  // Redirect after login
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (session?.user?.role === "admin") router.push("/admin");
+      else router.push("/user");
+    }
+  }, [session, status, router]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await signIn("credentials", {
+      redirect: false,
+      username,
+      password,
+    });
+
+    if (res.error) alert("Invalid credentials");
   };
 
-  return (
-    <div>
-      <form method="post" action="/api/auth/callback/credentials">
-        <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-        <label>
-          Username:
-          <input name="username" type="text" />
-        </label>
-        <label>
-          Password:
-          <input name="password" type="password" />
-        </label>
-        <button type="submit">Sign in</button>
-      </form>
+  const handleGoogleLogin = () => signIn("google", { callbackUrl: "/user" });
 
-  
+  if (status === "loading") return <p>Loading...</p>;
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>Login</h1>
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            style={styles.input}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button style={styles.button} type="submit">
+            Login
+          </button>
+        </form>
+
+        <p style={styles.orText}>OR</p>
+
+        <button style={styles.googleButton} onClick={handleGoogleLogin}>
+          Sign in with Google
+        </button>
+
+        <p style={{ marginTop: "1rem" }}>
+          Don't have an account? <Link href="/signup">Sign Up</Link>
+        </p>
+      </div>
     </div>
   );
 }
 
-export async function getServerSideProps(context) {
-  return {
-    props: {
-      csrfToken: await getCsrfToken(context),
-    },
-  };
-}
+const styles = {
+  container: { minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)" },
+  card: { background: "white", padding: "3rem", borderRadius: "10px", boxShadow: "0 8px 20px rgba(0,0,0,0.1)", width: "100%", maxWidth: "400px", textAlign: "center" },
+  title: { fontSize: "2rem", marginBottom: "2rem", color: "#333" },
+  form: { display: "flex", flexDirection: "column", gap: "1rem" },
+  input: { padding: "0.75rem 1rem", fontSize: "1rem", borderRadius: "5px", border: "1px solid #ccc" },
+  button: { padding: "0.75rem", fontSize: "1rem", backgroundColor: "#d1411e", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" },
+  orText: { margin: "1.5rem 0 1rem", color: "#555" },
+  googleButton: { padding: "0.75rem", fontSize: "1rem", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" },
+};

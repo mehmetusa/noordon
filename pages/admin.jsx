@@ -15,10 +15,9 @@ const AdminPage = ({ orders, products }) => {
   const [orderList, setOrderList] = useState(orders);
   const statusList = ["preparing", "on the way", "delivered"];
 
-  console.log("mehmet session",session);
   // Redirect if not admin
   if (sessionStatus === "loading") return <p>Loading...</p>;
-  if (!session || session?.user?.name !== "admin") {
+  if (!session || session?.user?.role !== "admin") {
     router.push("/login");
     return null;
   }

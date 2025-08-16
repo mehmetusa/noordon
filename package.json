@@ -11,6 +11,7 @@
     "@paypal/react-paypal-js": "latest",
     "@reduxjs/toolkit": "latest",
     "axios": "latest",
+    "bcryptjs": "^3.0.2",
     "cookie": "latest",
     "mongoose": "latest",
     "next": "latest",

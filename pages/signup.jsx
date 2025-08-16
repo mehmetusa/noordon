@@ -3,45 +3,51 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-export default function Login() {
+
+export default function SignUp() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Redirect based on session role
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status === "loading") return;
     if (session?.user?.role === "admin") router.push("/admin");
     else if (session?.user?.role === "user") router.push("/user");
-  }, [status, session, router]);
+  }, [session, status, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await signIn("credentials", {
-      redirect: false,
-      username,
-      password,
-    });
 
-    if (!res.error) {
-      // redirect after successful login
-      if (username === process.env.NEXT_PUBLIC_ADMIN_USERNAME) router.push("/admin");
-      else router.push("/user");
-    } else {
-       alert("Invalid credentials");
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        await signIn("credentials", { redirect: false, username, password });
+        router.push("/user");
+      } else {
+        alert(data.message || "Signup failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred");
     }
   };
 
   const handleGoogleLogin = () => signIn("google", { callbackUrl: "/user" });
 
-  if (status === "loading") return <p>Loading...</p>;
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Login</h1>
+        <h1 style={styles.title}>Sign Up</h1>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
@@ -53,6 +59,14 @@ export default function Login() {
           />
           <input
             style={styles.input}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            style={styles.input}
             type="password"
             placeholder="Password"
             value={password}
@@ -60,7 +74,7 @@ export default function Login() {
             required
           />
           <button style={styles.button} type="submit">
-            Login
+            Sign Up
           </button>
         </form>
 
@@ -71,9 +85,9 @@ export default function Login() {
         </button>
 
         <p style={{ marginTop: "1rem", color: "#555" }}>
-          Don’t have an account?{" "}
-          <Link href="/signup" style={{ color: "#d1411e", textDecoration: "underline" }}>
-            Sign Up
+          Already have an account?{" "}
+          <Link href="/login" style={{ color: "#d1411e", textDecoration: "underline" }}>
+            Sign In
           </Link>
         </p>
       </div>
@@ -99,10 +113,42 @@ const styles = {
     maxWidth: "400px",
     textAlign: "center",
   },
-  title: { fontSize: "2rem", marginBottom: "2rem", color: "#333" },
-  form: { display: "flex", flexDirection: "column", gap: "1rem" },
-  input: { padding: "0.75rem 1rem", fontSize: "1rem", borderRadius: "5px", border: "1px solid #ccc" },
-  button: { padding: "0.75rem", fontSize: "1rem", backgroundColor: "#d1411e", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" },
-  orText: { margin: "1.5rem 0 1rem", color: "#555" },
-  googleButton: { padding: "0.75rem", fontSize: "1rem", backgroundColor: "#4285F4", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" },
+  title: {
+    fontSize: "2rem",
+    marginBottom: "2rem",
+    color: "#333",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+  },
+  input: {
+    padding: "0.75rem 1rem",
+    fontSize: "1rem",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
+  button: {
+    padding: "0.75rem",
+    fontSize: "1rem",
+    backgroundColor: "#28a745",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  orText: {
+    margin: "1.5rem 0 1rem",
+    color: "#555",
+  },
+  googleButton: {
+    padding: "0.75rem",
+    fontSize: "1rem",
+    backgroundColor: "#4285F4",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
 };
