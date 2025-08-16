@@ -7,41 +7,40 @@ export default NextAuth({
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "admin" },
-        password: { label: "Password", type: "password" }
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Your credential logic
         if (
-          credentials.username === "admin" &&
-          credentials.password === "admin"
+          credentials.username === process.env.ADMIN_USERNAME &&
+          credentials.password === process.env.ADMIN_PASSWORD
         ) {
-          return { id: 1, name: "admin", email: "admin@example.com" };
+          return { name: "admin", role: "admin" };
         }
-        return null;
-      }
+        // Regular user example
+        if (credentials.username === "user" && credentials.password === "user123") {
+          return { name: "user", role: "user" };
+        }
+        return null; // login failed
+      },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-  session: {
-    strategy: "jwt",
+  pages: {
+    signIn: "/login",
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
+      if (user) token.user = user;
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id;
+      session.user = token.user;
       return session;
-    }
+    },
   },
-  pages: {
-    signIn: '/login'
-  }
+  secret: process.env.NEXTAUTH_SECRET,
 });
