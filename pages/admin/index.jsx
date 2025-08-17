@@ -10,7 +10,7 @@ import Add from "../../components/Add";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-const AdminPage = ({ orders, products }) => {
+const AdminPage = ({ orders = [], products = [] }) => {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
 
@@ -19,7 +19,6 @@ const AdminPage = ({ orders, products }) => {
   const [close, setClose] = useState(true);
   const statusList = ["preparing", "on the way", "delivered"];
 
-  // Client-side redirect if not admin
   useEffect(() => {
     if (sessionStatus === "loading") return;
     if (!session || session.user.role !== "admin") {
@@ -29,29 +28,28 @@ const AdminPage = ({ orders, products }) => {
 
   if (sessionStatus === "loading") return <p>Loading...</p>;
   if (!session || session.user.role !== "admin") return null;
+ // Delete product
+ const handleDelete = async (id) => {
+  try {
+    await axios.delete(`${API}/api/products/${id}`);
+    setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  // Delete product
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${API}/api/products/${id}`);
-      setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Update order status
-  const handleStatus = async (id) => {
-    const item = orderList.find((order) => order._id === id);
-    try {
-      const res = await axios.put(`${API}/api/orders/${id}`, {
-        status: item.status + 1,
-      });
-      setOrderList([res.data, ...orderList.filter((order) => order._id !== id)]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+// Update order status
+const handleStatus = async (id) => {
+  const item = orderList.find((order) => order._id === id);
+  try {
+    const res = await axios.put(`${API}/api/orders/${id}`, {
+      status: item.status + 1,
+    });
+    setOrderList([res.data, ...orderList.filter((order) => order._id !== id)]);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <div className={styles.container}>
@@ -82,31 +80,39 @@ const AdminPage = ({ orders, products }) => {
             </tr>
           </thead>
           <tbody>
-            {pizzaList.map((product) => (
-              <tr key={product._id} className={styles.trTitle}>
-                <td>
-                  <Image
-                    src={product.img}
-                    width={50}
-                    height={50}
-                    style={{ objectFit: "cover" }}
-                    alt={product.title}
-                  />
-                </td>
-                <td>{product._id.slice(0, 5)}...</td>
-                <td>{product.title}</td>
-                <td>${product.prices[0]}</td>
-                <td>
-                  <button className={styles.button}>Edit</button>
-                  <button
-                    className={styles.button}
-                    onClick={() => handleDelete(product._id)}
-                  >
-                    Delete
-                  </button>
+            {pizzaList.length > 0 ? (
+              pizzaList.map((product) => (
+                <tr key={product._id} className={styles.trTitle}>
+                  <td>
+                    <Image
+                      src={product.img}
+                      width={50}
+                      height={50}
+                      style={{ objectFit: "cover" }}
+                      alt={product.title}
+                    />
+                  </td>
+                  <td>{product._id.slice(0, 5)}...</td>
+                  <td>{product.title}</td>
+                  <td>${product.prices[0]}</td>
+                  <td>
+                    <button className={styles.button}>Edit</button>
+                    <button
+                      className={styles.button}
+                      onClick={() => handleDelete(product._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} style={{ textAlign: "center" }}>
+                  No products found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -126,24 +132,33 @@ const AdminPage = ({ orders, products }) => {
             </tr>
           </thead>
           <tbody>
-            {orderList.map((order) => (
-              <tr key={order._id} className={styles.trTitle}>
-                <td>{order._id.slice(0, 5)}...</td>
-                <td>{order.customer}</td>
-                <td>${order.total}</td>
-                <td>{order.method === 0 ? "cash" : "paid"}</td>
-                <td>{statusList[order.status]}</td>
-                <td>
-                  <button onClick={() => handleStatus(order._id)}>Next Stage</button>
+            {orderList.length > 0 ? (
+              orderList.map((order) => (
+                <tr key={order._id} className={styles.trTitle}>
+                  <td>{order._id.slice(0, 5)}...</td>
+                  <td>{order.customer}</td>
+                  <td>${order.total}</td>
+                  <td>{order.method === 0 ? "cash" : "paid"}</td>
+                  <td>{statusList[order.status]}</td>
+                  <td>
+                    <button onClick={() => handleStatus(order._id)}>Next Stage</button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center" }}>
+                  No orders found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
     </div>
   );
 };
+
 
 // Fetch data but avoid server-side redirect for JSON output
 export const getServerSideProps = async (ctx) => {
