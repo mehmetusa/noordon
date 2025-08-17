@@ -13,20 +13,24 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 const AdminPage = ({ orders, products }) => {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
+
   const [pizzaList, setPizzaList] = useState(products);
   const [orderList, setOrderList] = useState(orders);
   const [close, setClose] = useState(true);
   const statusList = ["preparing", "on the way", "delivered"];
 
+  // Client-side redirect if not admin
   useEffect(() => {
-    if (sessionStatus !== "loading" && (!session || session.user.role !== "admin")) {
-      router.push("/login");
+    if (sessionStatus === "loading") return;
+    if (!session || session.user.role !== "admin") {
+      router.replace("/login");
     }
   }, [sessionStatus, session, router]);
 
   if (sessionStatus === "loading") return <p>Loading...</p>;
   if (!session || session.user.role !== "admin") return null;
 
+  // Delete product
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API}/api/products/${id}`);
@@ -36,6 +40,7 @@ const AdminPage = ({ orders, products }) => {
     }
   };
 
+  // Update order status
   const handleStatus = async (id) => {
     const item = orderList.find((order) => order._id === id);
     try {
@@ -140,15 +145,13 @@ const AdminPage = ({ orders, products }) => {
   );
 };
 
+// Fetch data but avoid server-side redirect for JSON output
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
 
   if (!session || session.user.role !== "admin") {
     return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
+      props: {}, // no redirect, handled client-side
     };
   }
 
