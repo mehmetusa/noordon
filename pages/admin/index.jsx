@@ -160,25 +160,39 @@ const handleStatus = async (id) => {
 };
 
 
-// Fetch data but avoid server-side redirect for JSON output
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
 
   if (!session || session.user.role !== "admin") {
     return {
-      props: {}, // no redirect, handled client-side
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
     };
   }
 
-  const productRes = await axios.get(`${API}/api/products`);
-  const orderRes = await axios.get(`${API}/api/orders`);
+  let products = [];
+  let orders = [];
+
+  try {
+    const productRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
+    products = productRes.data || [];
+  } catch (err) {
+    console.error("Failed to fetch products:", err.message);
+  }
+
+  try {
+    const orderRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`);
+    orders = orderRes.data || [];
+  } catch (err) {
+    console.error("Failed to fetch orders:", err.message);
+  }
 
   return {
-    props: {
-      orders: orderRes.data,
-      products: productRes.data,
-    },
+    props: { products, orders },
   };
 };
+
 
 export default AdminPage;
