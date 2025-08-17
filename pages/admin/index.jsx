@@ -161,8 +161,7 @@ const handleStatus = async (id) => {
 
 
 export const getServerSideProps = async (ctx) => {
-  const session = await getSession(ctx);
-
+  const session = await getSession({ req: ctx.req }); // pass req explicitly
   if (!session || session.user.role !== "admin") {
     return {
       redirect: {
