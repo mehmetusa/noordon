@@ -1,132 +1,133 @@
-.container {
-  padding: 50px;
+.contactSection {
+  padding: 60px 20px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+.contactContainer {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 40px;
 }
 
-.left {
-  flex: 2;
-}
-
-.right {
+.contactInfoMain {
   flex: 1;
+  min-width: 280px;
 }
 
-.imgContainer {
-  width: 100px;
-  height: 100px;
-  position: relative;
+.logoContact {
+  width: 120px;
+  margin-bottom: 20px;
 }
 
-.table {
-  width: 100%;
-  border-spacing: 20px;
+.contactInfoMain h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
 }
 
-.name {
-  font-weight: 500;
-  color: #d1411e;
-  font-size: 18px;
+.contactInfoMain p {
+  margin-bottom: 20px;
+  color: #555;
 }
 
-.total {
-  font-weight: 500;
-  font-size: 18px;
-}
-
-.wrapper {
-  width: 90%;
-  max-height: 300px;
-  background-color: #333;
-  padding: 50px;
-  padding-top: 10px;
+.contactDetails {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  color: white;
+  gap: 15px;
 }
 
-.totalTextTitle {
-  margin-right: 10px;
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #333;
 }
 
-.button {
-  height: 30px;
+.contactIcon {
   color: #d1411e;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 20px;
 }
 
-@media screen and (max-width: 480px) {
-  .container {
-    flex-direction: column;
-    padding: 20px;
-  }
-
-  .table {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .trTitle {
-    display: none;
-  }
-
-  .tr {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-
-  .imgContainer {
-    width: 35vw;
-    height: 35vw;
-  }
-
-  .name,
-  .total {
-    font-size: 24px;
-  }
-
-  .extras,
-  .price,
-  .quantity {
-    font-size: 22px;
-  }
-
-  .price::before {
-    content: "Price: ";
-    font-weight: 500;
-  }
-  .quantity::before {
-    content: "Quantity: ";
-    font-weight: 500;
-  }
-  .total::before {
-    content: "Total: ";
-    font-weight: 500;
-  }
-
-  .wrapper {
-    width: 100%;
-  }
+/* Form Styling */
+.contactFormContainer {
+  flex: 1;
+  min-width: 280px;
 }
 
-.paymentMethods {
-  margin-top: 10px;
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formGroup {
   display: flex;
   flex-direction: column;
 }
 
-.payButton {
-  padding: 10px 5px;
-  cursor: pointer;
+.formGroup label {
   margin-bottom: 5px;
-  background-color: white;
-  color: teal;
   font-weight: bold;
+  color: #333;
 }
+
+.formGroup input,
+.formGroup textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #d1411e;
+}
+
+.submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #d1411e;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submitButton:hover {
+  background-color: #b4351a;
+}
+
+.buttonIcon {
+  font-size: 18px;
+}
+
+.formResult {
+  margin-top: 10px;
+  font-size: 14px;
+  color: green;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.formResult.visible {
+  opacity: 1;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .contactContainer {
+    flex-direction: column;
+    gap: 30px;
+  }
+}
+

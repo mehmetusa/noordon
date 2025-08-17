@@ -11,8 +11,8 @@ export default function Home({ pizzaList, admin }) {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Pizza Restaurant in Newyork</title>
-        <meta name="description" content="Best pizza shop in town" />
+        <title>Noordon Bakery</title>
+        <meta name="description" content="Best bakery shop in Virginia" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Featured />

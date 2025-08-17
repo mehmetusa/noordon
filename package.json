@@ -13,6 +13,7 @@
     "axios": "latest",
     "bcryptjs": "^3.0.2",
     "cookie": "latest",
+    "dotenv": "^17.2.1",
     "mongoose": "latest",
     "next": "latest",
     "next-auth": "^4.24.11",

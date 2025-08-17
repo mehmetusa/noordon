@@ -28,6 +28,10 @@ const ProductSchema = new mongoose.Schema(
         },
       ],
     },
+    category: {
+      type: String, // or mongoose.Schema.Types.ObjectId if you reference a Category collection
+      required: true,
+    },
   },
   { timestamps: true }
 );
