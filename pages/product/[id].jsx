@@ -37,7 +37,6 @@ const Product = ({ pizza }) => {
   const handleClick = () => {
     dispatch(addProduct({...pizza, extras, price, quantity}));
   };
-console.log("mehmet",pizza);
   return (
     <div className={styles.container}>
       <div className={styles.left}>

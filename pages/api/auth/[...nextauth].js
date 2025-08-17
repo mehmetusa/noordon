@@ -30,15 +30,28 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user?.role) token.role = user.role;
+      if (user?.id) token.id = user.id; // add user ID to token
       return token;
     },
     async session({ session, token }) {
       if (token?.role) session.user.role = token.role;
+      if (token?.id) session.user.id = token.id; // add user ID to session
       return session;
     },
+  
+  
   },
   pages: {
     signIn: "/login",
   },
   session: { strategy: "jwt" },
 });
+
+
+// callbacks: {
+//   async session({ session, token, user }) {
+//     session.user.id = user.id; // add the MongoDB user ID
+//     session.user.role = user.role; // if you have roles
+//     return session;
+//   },
+// }

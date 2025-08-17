@@ -11,11 +11,15 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: session, status } = useSession();
 
+  // Close mobile menu after clicking a link
+  const handleLinkClick = () => setMenuOpen(false);
+
   return (
     <div className={styles.container}>
+      {/* Left side: Call info */}
       <div className={styles.item}>
         <div className={styles.callButton}>
-          <Image src="/img/telephone.png" alt="" width="32" height="32" />
+          <Image src="/img/telephone.png" alt="Phone" width={32} height={32} />
         </div>
         <div className={styles.texts}>
           <div className={styles.text}>ORDER NOW!</div>
@@ -23,23 +27,24 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Middle: Menu & Logo */}
       <div className={styles.item}>
         <ul className={`${styles.list} ${menuOpen ? styles.active : ""}`}>
           <Link href="/products" passHref>
-            <li className={styles.listItem}>Products</li>
+            <li className={styles.listItem} onClick={handleLinkClick}>Products</li>
           </Link>
           <Link href="/catering" passHref>
-            <li className={styles.listItem}>Catering</li>
+            <li className={styles.listItem} onClick={handleLinkClick}>Catering</li>
           </Link>
 
           {status === "authenticated" && session?.user?.role === "admin" && (
             <Link href="/admin" passHref>
-              <li className={styles.listItem}>Admin</li>
+              <li className={styles.listItem} onClick={handleLinkClick}>Admin</li>
             </Link>
           )}
 
           <Link href="/" passHref>
-            <li className={styles.listItem}>
+            <li className={styles.listItem} onClick={handleLinkClick}>
               <Image
                 className={styles.logo}
                 src="/img/noordon.png"
@@ -51,24 +56,28 @@ const Navbar = () => {
           </Link>
 
           <Link href="/contact" passHref>
-            <li className={styles.listItem}>Contact</li>
+            <li className={styles.listItem} onClick={handleLinkClick}>Contact</li>
           </Link>
 
           {status !== "authenticated" ? (
             <Link href="/login" passHref>
-              <li className={styles.listItem}>Login</li>
+              <li className={styles.listItem} onClick={handleLinkClick}>Login</li>
             </Link>
           ) : (
             <li
               className={styles.listItem}
               style={{ cursor: "pointer" }}
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => {
+                signOut({ callbackUrl: "/" });
+                handleLinkClick();
+              }}
             >
               Logout
             </li>
           )}
         </ul>
 
+        {/* Mobile Hamburger */}
         <div
           className={styles.mobileMenuIcon}
           onClick={() => setMenuOpen(!menuOpen)}
@@ -77,10 +86,11 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Right: Cart */}
       <Link href="/cart" passHref>
         <div className={styles.item}>
           <div className={styles.cart}>
-            <Image src="/img/cart.png" alt="" width="30" height="30" />
+            <Image src="/img/cart.png" alt="Cart" width={30} height={30} />
             <div className={styles.counter}>{quantity}</div>
           </div>
         </div>
