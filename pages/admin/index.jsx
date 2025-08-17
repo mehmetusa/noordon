@@ -170,6 +170,7 @@ export const getServerSideProps = async (ctx) => {
       },
     };
   }
+  console.log("Production session: mehmet  ", session);
 
   let products = [];
   let orders = [];
