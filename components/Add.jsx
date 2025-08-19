@@ -3,13 +3,15 @@ import axios from "axios";
 import styles from "../styles/Add.module.css";
 
 const Add = ({ setClose }) => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [prices, setPrices] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [extra, setExtra] = useState(null);
   const [extraOptions, setExtraOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const categories = [
     { id: "bakery", name: "Bakery" },
@@ -20,14 +22,20 @@ const Add = ({ setClose }) => {
     { id: "cookies", name: "Cookies" },
   ];
 
-  // Update price at index
+  const handleFilesChange = (e) => {
+    const selectedFiles = [...e.target.files];
+    setFiles(selectedFiles);
+
+    const previewUrls = selectedFiles.map((file) => URL.createObjectURL(file));
+    setPreviews(previewUrls);
+  };
+
   const changePrice = (e, index) => {
     const newPrices = [...prices];
-    newPrices[index] = e.target.value;
+    newPrices[index] = Number(e.target.value);
     setPrices(newPrices);
   };
 
-  // Handle extra input
   const handleExtraInput = (e) => {
     setExtra({ ...extra, [e.target.name]: e.target.value });
   };
@@ -38,43 +46,47 @@ const Add = ({ setClose }) => {
       setExtra(null);
     }
   };
-
-  // Create product
   const handleCreate = async () => {
-    if (!title || !desc || !categoryId || !file || prices.length === 0) {
+    if (!title || !desc || !categoryId || files.length === 0 || prices.length === 0) {
       alert("Please fill all required fields");
       return;
     }
-
+  
     try {
-      // Upload image to Cloudinary
-      const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", "noordon"); // replace with your preset
-
-      const uploadRes = await axios.post(
-        "https://api.cloudinary.com/v1_1/dcjz84xa8/image/upload",
-        data
-      );
-
-      const { url } = uploadRes.data;
-
+      setLoading(true); // start loading
+      const uploadedUrls = [];
+  
+      for (let file of files) {
+        const data = new FormData();
+        data.append("file", file);
+        data.append("upload_preset", "noordon");
+  
+        const uploadRes = await axios.post(
+          "https://api.cloudinary.com/v1_1/dcjz84xa8/image/upload",
+          data
+        );
+  
+        uploadedUrls.push(uploadRes.data.url);
+      }
+  
       const newProduct = {
         title,
         desc,
         prices,
-        category: categoryId, // ✅ use "category" instead of "categoryId"
+        category: categoryId,
         extraOptions,
-        img: url,
+        imgs: uploadedUrls,
       };
-
+  
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, newProduct);
-
       setClose(true);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false); // stop loading
     }
   };
+  
 
   return (
     <div className={styles.container}>
@@ -82,10 +94,15 @@ const Add = ({ setClose }) => {
         <span className={styles.close} onClick={() => setClose(true)}>X</span>
         <h1>Add New Product</h1>
 
-        {/* Image Upload */}
+        {/* Multiple Image Upload */}
         <div className={styles.item}>
-          <label className={styles.label}>Choose an image</label>
-          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+          <label className={styles.label}>Choose Images</label>
+          <input type="file" multiple onChange={handleFilesChange} />
+          <div className={styles.previewContainer}>
+            {previews.map((url, index) => (
+              <img key={index} src={url} alt={`Preview ${index}`} className={styles.previewImg} />
+            ))}
+          </div>
         </div>
 
         {/* Title */}
@@ -182,9 +199,9 @@ const Add = ({ setClose }) => {
         </div>
 
         {/* Create Button */}
-        <button className={styles.addButton} onClick={handleCreate}>
-          Create Product
-        </button>
+        <button className={styles.addButton} onClick={handleCreate} disabled={loading}>
+  {loading ? "Uploading..." : "Create Product"}
+</button>
       </div>
     </div>
   );

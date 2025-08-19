@@ -1,3 +1,4 @@
+// pages/admin/index.jsx
 import { useState, useEffect } from "react";
 import { getSession, useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -59,11 +60,9 @@ const AdminPage = ({ orders = [], products = [] }) => {
 
       {/* Add Product Button */}
       <div className={styles.addButtonWrapper}>
-  <AddButton setClose={setClose} />
-  {!close && <Add setClose={setClose} />}
-</div>
-
-
+        <AddButton setClose={setClose} />
+        {!close && <Add setClose={setClose} />}
+      </div>
 
       {/* Products Table */}
       <div className={styles.item}>
@@ -83,13 +82,24 @@ const AdminPage = ({ orders = [], products = [] }) => {
               pizzaList.map((product) => (
                 <tr key={product._id} className={styles.trTitle}>
                   <td>
-                    <Image
-                      src={product.img}
-                      width={50}
-                      height={50}
-                      style={{ objectFit: "cover", borderRadius: "6px" }}
-                      alt={product.title}
-                    />
+                    {product.imgs?.length > 0 ? (
+                      <Image
+                        src={product.imgs[0]} // show first image as thumbnail
+                        width={50}
+                        height={50}
+                        style={{ objectFit: "cover", borderRadius: "6px" }}
+                        alt={product.title}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 50,
+                          height: 50,
+                          backgroundColor: "#eee",
+                          borderRadius: "6px",
+                        }}
+                      />
+                    )}
                   </td>
                   <td>{product.shortId}</td>
                   <td>{product.title}</td>
@@ -140,7 +150,10 @@ const AdminPage = ({ orders = [], products = [] }) => {
                   <td>{order.method === 0 ? "Cash" : "Paid"}</td>
                   <td>{statusList[order.status]}</td>
                   <td>
-                    <button className={styles.button} onClick={() => handleStatus(order._id)}>
+                    <button
+                      className={styles.button}
+                      onClick={() => handleStatus(order._id)}
+                    >
                       Next Stage
                     </button>
                   </td>
@@ -158,7 +171,10 @@ const AdminPage = ({ orders = [], products = [] }) => {
       </div>
 
       {/* Logout Button */}
-      <button onClick={() => signOut()} className={styles.logoutButtonBottom}>
+      <button
+        onClick={() => signOut()}
+        className={styles.logoutButtonBottom}
+      >
         Logout
       </button>
     </div>
@@ -180,14 +196,14 @@ export const getServerSideProps = async (ctx) => {
   let orders = [];
 
   try {
-    const productRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
+    const productRes = await axios.get(`${API}/api/products`);
     products = productRes.data || [];
   } catch (err) {
     console.error("Failed to fetch products:", err.message);
   }
 
   try {
-    const orderRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`);
+    const orderRes = await axios.get(`${API}/api/orders`);
     orders = orderRes.data || [];
   } catch (err) {
     console.error("Failed to fetch orders:", err.message);

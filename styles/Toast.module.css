@@ -1,0 +1,20 @@
+/* components/Toast.module.css */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: teal;
+    color: white;
+    padding: 0.8rem 1.2rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    font-weight: bold;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  

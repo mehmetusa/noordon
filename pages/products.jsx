@@ -44,10 +44,10 @@ const Products = ({ products, categories, activeCategory }) => {
                 className={styles.cardLink}
               >
                 <div className={styles.card}>
-                  {/* Image */}
+                  {/* Main Image */}
                   <div className={styles.imageWrapper}>
                     <Image
-                      src={product.img}
+                      src={product.imgs?.[0] || "/img/placeholder.png"}
                       alt={product.title}
                       fill
                       sizes="(max-width: 768px) 100vw,

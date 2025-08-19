@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const MONGO_URL = process.env.MONGO_URL
+const MONGO_URL = "mongodb+srv://admin:m12341234@cluster0.ayivp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 if (!MONGO_URL) {
   throw new Error(
