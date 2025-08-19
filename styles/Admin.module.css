@@ -1,39 +1,139 @@
 .container {
-  padding: 50px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
+  gap: 2rem;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.header p {
+  color: #555;
+}
+
+.addButtonWrapper button{
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  
+
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #d1411e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .item {
-  flex: 1;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .table {
   width: 100%;
-  border-spacing: 20px;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.table th,
+.table td {
+  padding: 12px 8px;
   text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.trTitle:hover {
+  background-color: #f9f9f9;
 }
 
 .button {
   border: none;
-  color: white;
-  padding: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
 }
 
 .button:first-child {
   background-color: teal;
-  margin-right: 10px;
+  color: white;
+  margin-right: 8px;
+}
+
+.button:first-child:hover {
+  background-color: #007666;
 }
 
 .button:last-child {
   background-color: crimson;
+  color: white;
 }
 
-.admin-main{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+.button:last-child:hover {
+  background-color: #a5001f;
+}
+
+/* Logout Button at bottom */
+.logoutButtonBottom {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #d1411e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logoutButtonBottom:hover {
+  background-color: #a12f18;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .table {
+    min-width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .button {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+  }
 }

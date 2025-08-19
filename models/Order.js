@@ -24,6 +24,11 @@ const OrderSchema = new mongoose.Schema(
       type: Number,
       required:true
     },
+    shortId: {
+      type: String,
+      unique: true,
+      default: () => shortid.generate().slice(0, 5), // 5-character unique ID
+    },
   },
   { timestamps: true }
 );

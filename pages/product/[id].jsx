@@ -96,10 +96,7 @@ const Product = ({ pizza }) => {
 
 export const getServerSideProps = async ({ params }) => {
   const API = process.env.NEXT_PUBLIC_API_URL;
-
-  const res = await axios.get(
-    `${API}/api/products/${params.id}`
-  );
+  const res = await axios.get(`${API}/api/products/${params.id}`);
   return {
     props: {
       pizza: res.data,

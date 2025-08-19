@@ -32,6 +32,11 @@ const ProductSchema = new mongoose.Schema(
       type: String, // or mongoose.Schema.Types.ObjectId if you reference a Category collection
       required: true,
     },
+    shortId: {
+      type: String,
+      unique: true,
+      default: () => shortid.generate().slice(0, 5), // 5-character unique ID
+    },
   },
   { timestamps: true }
 );

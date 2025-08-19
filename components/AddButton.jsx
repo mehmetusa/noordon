@@ -1,10 +1,14 @@
-import styles from "../styles/Add.module.css";
+import React from "react";
+import styles from "../styles/Admin.module.css";
 
 const AddButton = ({ setClose }) => {
   return (
-    <div onClick={() => setClose(false)} className={styles.mainAddButton}>
-      Add New Pizza
-    </div>
+    <button
+      className={styles.addProductButtonBottom}
+      onClick={() => setClose(false)}
+    >
+      Add New Product
+    </button>
   );
 };
 

@@ -1,4 +1,3 @@
-// pages/admin/index.jsx
 import { useState, useEffect } from "react";
 import { getSession, useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -28,50 +27,50 @@ const AdminPage = ({ orders = [], products = [] }) => {
 
   if (sessionStatus === "loading") return <p>Loading...</p>;
   if (!session || session.user.role !== "admin") return null;
- // Delete product
- const handleDelete = async (id) => {
-  try {
-    await axios.delete(`${API}/api/products/${id}`);
-    setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
-  } catch (err) {
-    console.error(err);
-  }
-};
 
-// Update order status
-const handleStatus = async (id) => {
-  const item = orderList.find((order) => order._id === id);
-  try {
-    const res = await axios.put(`${API}/api/orders/${id}`, {
-      status: item.status + 1,
-    });
-    setOrderList([res.data, ...orderList.filter((order) => order._id !== id)]);
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${API}/api/products/${id}`);
+      setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleStatus = async (id) => {
+    const item = orderList.find((order) => order._id === id);
+    try {
+      const res = await axios.put(`${API}/api/orders/${id}`, {
+        status: item.status + 1,
+      });
+      setOrderList([res.data, ...orderList.filter((order) => order._id !== id)]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className={styles.container}>
-      <div style={{ padding: "2rem" }}>
-        <h1>Welcome Admin</h1>
+      {/* Header */}
+      <div className={styles.header}>
+        <h1>Welcome, Admin</h1>
         <p>You are logged in as: {session.user.name}</p>
-        <button onClick={() => signOut()} style={{ marginTop: "1rem" }}>
-          Logout
-        </button>
       </div>
 
-      <div>
-        <AddButton setClose={setClose} />
-        {!close && <Add setClose={setClose} />}
-      </div>
+      {/* Add Product Button */}
+      <div className={styles.addButtonWrapper}>
+  <AddButton setClose={setClose} />
+  {!close && <Add setClose={setClose} />}
+</div>
 
-      {/* Products table */}
+
+
+      {/* Products Table */}
       <div className={styles.item}>
-        <h1 className={styles.title}>Products</h1>
+        <h2 className={styles.title}>Products</h2>
         <table className={styles.table}>
           <thead>
-            <tr className={styles.trTitle}>
+            <tr>
               <th>Image</th>
               <th>Id</th>
               <th>Title</th>
@@ -88,11 +87,11 @@ const handleStatus = async (id) => {
                       src={product.img}
                       width={50}
                       height={50}
-                      style={{ objectFit: "cover" }}
+                      style={{ objectFit: "cover", borderRadius: "6px" }}
                       alt={product.title}
                     />
                   </td>
-                  <td>{product._id.slice(0, 5)}...</td>
+                  <td>{product.shortId}</td>
                   <td>{product.title}</td>
                   <td>${product.prices[0]}</td>
                   <td>
@@ -117,12 +116,12 @@ const handleStatus = async (id) => {
         </table>
       </div>
 
-      {/* Orders table */}
+      {/* Orders Table */}
       <div className={styles.item}>
-        <h1 className={styles.title}>Orders</h1>
+        <h2 className={styles.title}>Orders</h2>
         <table className={styles.table}>
           <thead>
-            <tr className={styles.trTitle}>
+            <tr>
               <th>Id</th>
               <th>Customer</th>
               <th>Total</th>
@@ -135,13 +134,15 @@ const handleStatus = async (id) => {
             {orderList.length > 0 ? (
               orderList.map((order) => (
                 <tr key={order._id} className={styles.trTitle}>
-                  <td>{order._id.slice(0, 5)}...</td>
+                  <td>{order?.shortId}</td>
                   <td>{order.customer}</td>
                   <td>${order.total}</td>
-                  <td>{order.method === 0 ? "cash" : "paid"}</td>
+                  <td>{order.method === 0 ? "Cash" : "Paid"}</td>
                   <td>{statusList[order.status]}</td>
                   <td>
-                    <button onClick={() => handleStatus(order._id)}>Next Stage</button>
+                    <button className={styles.button} onClick={() => handleStatus(order._id)}>
+                      Next Stage
+                    </button>
                   </td>
                 </tr>
               ))
@@ -155,13 +156,17 @@ const handleStatus = async (id) => {
           </tbody>
         </table>
       </div>
+
+      {/* Logout Button */}
+      <button onClick={() => signOut()} className={styles.logoutButtonBottom}>
+        Logout
+      </button>
     </div>
   );
 };
 
-
 export const getServerSideProps = async (ctx) => {
-  const session = await getSession({ req: ctx.req }); // pass req explicitly
+  const session = await getSession({ req: ctx.req });
   if (!session || session.user.role !== "admin") {
     return {
       redirect: {
@@ -170,7 +175,6 @@ export const getServerSideProps = async (ctx) => {
       },
     };
   }
-  console.log("Production session: mehmet  ", session);
 
   let products = [];
   let orders = [];
@@ -193,6 +197,5 @@ export const getServerSideProps = async (ctx) => {
     props: { products, orders },
   };
 };
-
 
 export default AdminPage;
