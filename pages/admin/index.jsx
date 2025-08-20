@@ -7,6 +7,7 @@ import Image from "next/image";
 import styles from "../../styles/Admin.module.css";
 import AddButton from "../../components/AddButton";
 import Add from "../../components/Add";
+import EditProductModal from "../../components/EditProductModal";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -17,6 +18,7 @@ const AdminPage = ({ orders = [], products = [] }) => {
   const [pizzaList, setPizzaList] = useState(products);
   const [orderList, setOrderList] = useState(orders);
   const [close, setClose] = useState(true);
+  const [editingProduct, setEditingProduct] = useState(null); // product to edit
   const statusList = ["preparing", "on the way", "delivered"];
 
   useEffect(() => {
@@ -29,15 +31,47 @@ const AdminPage = ({ orders = [], products = [] }) => {
   if (sessionStatus === "loading") return <p>Loading...</p>;
   if (!session || session.user.role !== "admin") return null;
 
+  // ✅ DELETE PRODUCT
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API}/api/products/${id}`);
-      setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
+      const res = await axios.delete(`${API}/api/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+      });
+      if (res.status === 200) {
+        setPizzaList((prev) => prev.filter((pizza) => pizza._id !== id));
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Delete failed:", err.response?.data || err.message);
+      alert("Failed to delete product. Please try again.");
     }
   };
 
+  // ✅ UPDATE PRODUCT
+  const handleUpdate = async (id, updatedData) => {
+    try {
+      const res = await axios.put(`${API}/api/products/${id}`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.accessToken}`,
+        },
+      });
+  
+      if (res.status === 200) {
+        setPizzaList((prev) =>
+          prev.map((pizza) => (pizza._id === id ? res.data : pizza))
+        );
+        setEditingProduct(null); // ✅ close modal only after update
+        alert("Product updated successfully!");
+      }
+    } catch (err) {
+      console.error("Edit failed:", err.response?.data || err.message);
+      alert("Failed to update product. Please try again.");
+    }
+  };
+  
+
+  // ✅ UPDATE ORDER STATUS
   const handleStatus = async (id) => {
     const item = orderList.find((order) => order._id === id);
     try {
@@ -84,7 +118,7 @@ const AdminPage = ({ orders = [], products = [] }) => {
                   <td>
                     {product.imgs?.length > 0 ? (
                       <Image
-                        src={product.imgs[0]} // show first image as thumbnail
+                        src={product.imgs[0]}
                         width={50}
                         height={50}
                         style={{ objectFit: "cover", borderRadius: "6px" }}
@@ -105,7 +139,12 @@ const AdminPage = ({ orders = [], products = [] }) => {
                   <td>{product.title}</td>
                   <td>${product.prices[0]}</td>
                   <td>
-                    <button className={styles.button}>Edit</button>
+                  <button
+  className={styles.button}
+  onClick={() => setEditingProduct(product)} // just open modal
+>
+  Edit
+</button>
                     <button
                       className={styles.button}
                       onClick={() => handleDelete(product._id)}
@@ -170,11 +209,17 @@ const AdminPage = ({ orders = [], products = [] }) => {
         </table>
       </div>
 
+      {editingProduct && (
+        <EditProductModal
+  isOpen={!!editingProduct}
+  product={editingProduct}
+  onClose={() => setEditingProduct(null)}
+  onSave={(id, updatedData) => handleUpdate(id, updatedData)}
+/>
+)}
+
       {/* Logout Button */}
-      <button
-        onClick={() => signOut()}
-        className={styles.logoutButtonBottom}
-      >
+      <button onClick={() => signOut()} className={styles.logoutButtonBottom}>
         Logout
       </button>
     </div>
