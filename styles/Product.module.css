@@ -222,3 +222,60 @@
 .thumbnail:hover {
   border: 2px solid #555;
 }
+/* Mobile dropdown */
+.mobileDropdown {
+  display: none; /* hidden on desktop */
+  width: 100%;
+  position: relative;
+}
+
+.dropdownButton {
+  padding: 10px 12px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  justify-content: space-between; /* Align text left, arrow right */
+  align-items: center;
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+.dropdownButton span.arrow {
+  margin-left: 10px;
+  font-size: 0.9rem;
+}
+
+/* Dropdown list */
+.categoryListDropdown {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.categoryListDropdown li {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.categoryListDropdown li:last-child {
+  border-bottom: none;
+}
+
+/* Show dropdown button on mobile */
+@media (max-width: 768px) {
+  .categoryList {
+    display: none; /* hide desktop list */
+  }
+  .mobileDropdown {
+    display: block;
+  }
+}

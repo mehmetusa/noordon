@@ -1,10 +1,12 @@
-// pages/products.js
+import { useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "../styles/Product.module.css";
 
 const Products = ({ products, categories, activeCategory }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+
   return (
     <div className={styles.container}>
       {/* Breadcrumb */}
@@ -15,10 +17,58 @@ const Products = ({ products, categories, activeCategory }) => {
       </nav>
 
       <div className={styles.content}>
-        {/* Sidebar */}
+        {/* Sidebar / Dropdown */}
         <aside className={styles.sidebar}>
           <h3 className={styles.sidebarTitle}>Categories</h3>
+
+          {/* Mobile dropdown button */}
+          <div className={styles.mobileDropdown}>
+            <button
+              className={styles.dropdownButton}
+              onClick={() => setShowDropdown((prev) => !prev)}
+            >
+              {activeCategory} ▼
+            </button>
+            {showDropdown && (
+              <ul className={styles.categoryListDropdown}>
+                <li key="all">
+                  <Link
+                    href="/products?category=All"
+                    className={`${styles.catLink} ${
+                      activeCategory === "All" ? styles.activeCat : ""
+                    }`}
+                  >
+                    All Products
+                  </Link>
+                </li>
+                {categories?.map((cat) => (
+                  <li key={cat._id}>
+                    <Link
+                      href={`/products?category=${cat.name}`}
+                      className={`${styles.catLink} ${
+                        activeCategory === cat.name ? styles.activeCat : ""
+                      }`}
+                    >
+                      {cat.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Desktop list */}
           <ul className={styles.categoryList}>
+            <li key="all">
+              <Link
+                href="/products?category=All"
+                className={`${styles.catLink} ${
+                  activeCategory === "All" ? styles.activeCat : ""
+                }`}
+              >
+                All Products
+              </Link>
+            </li>
             {categories?.map((cat) => (
               <li key={cat._id}>
                 <Link
@@ -44,7 +94,6 @@ const Products = ({ products, categories, activeCategory }) => {
                 className={styles.cardLink}
               >
                 <div className={styles.card}>
-                  {/* Main Image */}
                   <div className={styles.imageWrapper}>
                     <Image
                       src={product.imgs?.[0] || "/img/placeholder.png"}
@@ -56,14 +105,12 @@ const Products = ({ products, categories, activeCategory }) => {
                       className={styles.image}
                     />
                   </div>
-
-                  {/* Info */}
                   <div className={styles.cardBody}>
                     <h3 className={styles.title}>{product.title}</h3>
                     <p className={styles.desc}>{product.desc}</p>
                     <p className={styles.price}>
                       {product.prices?.length > 0
-                        ? `$${product.prices[0]}`
+                        ? `Price starts from $${product.prices[0]}`
                         : "No price"}
                     </p>
                     <button className={styles.button}>View Details</button>
@@ -81,12 +128,12 @@ const Products = ({ products, categories, activeCategory }) => {
 };
 
 export const getServerSideProps = async ({ query }) => {
-  const category = query.category || "";
+  const category = query.category || "All";
 
   const [productsRes, categoriesRes] = await Promise.all([
     axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/api/products${
-        category ? `?category=${category}` : ""
+        category && category !== "All" ? `?category=${category}` : ""
       }`
     ),
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`)

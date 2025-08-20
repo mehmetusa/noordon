@@ -8,12 +8,22 @@ export default async function handler(req, res) {
 
   dbConnect();
 
-  if (method === "GET") {
+  if (req.method === "GET") {
     try {
-      const products = await Product.find();
-      res.status(200).json(products);
+      const { category } = req.query;
+
+      let filter = {};
+      console.log("mehmet filter",filter)
+      console.log("mehmet category",category)
+
+      if (category && category.toLowerCase() !== "All Products") {
+        filter.category = category.toLowerCase(); // or match DB case
+      }
+
+      const products = await Product.find(filter);
+      return res.status(200).json(products);
     } catch (err) {
-      res.status(500).json(err);
+      return res.status(500).json({ error: "Failed to fetch products" });
     }
   }
 
