@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 30px;
+  padding: 0 20px;
   position: sticky;
   top: 0;
   z-index: 999;
@@ -23,18 +23,23 @@
   padding: 10px;
   width: 50px;
   height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .texts {
   color: white;
+  display: flex;
+  flex-direction: column;
 }
 
-.text:first-child {
+.texts .text:first-child {
   font-size: 12px;
   font-weight: 500;
 }
 
-.text:last-child {
+.texts .text:last-child {
   font-size: 20px;
   font-weight: bold;
 }
@@ -70,7 +75,6 @@
 
 .cart {
   position: relative;
-  margin-left: 20px;
   cursor: pointer;
 }
 
@@ -90,46 +94,34 @@
   color: #d1411e;
 }
 
-/* Hamburger icon shown only on small screens */
-.hamburger {
+/* Hamburger menu */
+.mobileMenuIcon {
   display: none;
   cursor: pointer;
 }
 
-/* Mobile dropdown menu */
-.mobileMenu {
-  display: none;
-  flex-direction: column;
-  background-color: #d1411e;
-  width: 100%;
-  padding: 10px 0;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 998;
-}
-
-.mobileItem {
-  color: white;
-  padding: 12px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-}
-
-/* Responsive layout below 768px */
+/* Mobile menu */
 @media screen and (max-width: 768px) {
   .list {
     display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100px;
+    left: 0;
+    width: 100%;
+    background-color: #d1411e;
+    padding: 10px 0;
+    gap: 10px;
+    z-index: 998;
   }
 
-  .hamburger {
-    display: block;
-  }
-
-  .mobileMenu {
+  .list.active {
     display: flex;
+  }
+
+  .listItem {
+    margin: 10px 0;
+    text-align: center;
   }
 
   .logoWrapper {
@@ -143,24 +135,12 @@
     max-width: 80px;
   }
 
-  .item {
-    /* justify-content: space-between; */
-    width: 100%;
-    
-  }
-}
-
-
-
-@media screen and (max-width: 768px) {
-  .item:last-child {
-    justify-content: flex-end;
-    flex: 1;
+  .mobileMenuIcon {
+    display: block;
   }
 
   .cart {
     margin-left: auto;
-    margin-right: 10px;
   }
 
   .counter {
@@ -168,40 +148,3 @@
     right: -8px;
   }
 }
-
-.mobileMenuIcon {
-  display: none;
-  cursor: pointer;
-}
-
-@media screen and (max-width: 480px) {
-  .mobileMenuIcon {
-    display: block;
-    position: absolute;
-    right: 20px;
-    top: 30px;
-  }
-
-  .list {
-    display: none;
-    flex-direction: column;
-    background-color: #d1411e;
-    position: fixed;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    height: calc(100% - 60px);
-    padding-top: 20px;
-    z-index: 1000;
-  }
-
-  .list.active {
-    display: flex;
-  }
-
-  .listItem {
-    margin: 20px 0;
-    text-align: center;
-  }
-}
-

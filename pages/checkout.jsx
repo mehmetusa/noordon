@@ -3,12 +3,9 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  PayPalScriptProvider,
-  PayPalButtons,
-  usePayPalScriptReducer,
-} from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { reset } from "../redux/cartSlice";
+import { persistor } from "../redux/store";
 import Image from "next/image";
 import axios from "axios";
 import styles from "../styles/Checkout.module.css";
@@ -20,6 +17,8 @@ const Checkout = () => {
   const dispatch = useDispatch();
   const API = process.env.NEXT_PUBLIC_API_URL;
 
+  const { deliveryDate, deliverySlot } = router.query;
+
   useEffect(() => {
     if (status !== "loading" && !session) {
       router.replace("/login");
@@ -30,14 +29,32 @@ const Checkout = () => {
 
   const createOrder = async (orderData) => {
     try {
+      if (!orderData.deliveryDate || !orderData.deliverySlot) {
+        return alert("Delivery date and slot are required");
+      }
       const res = await axios.post(`${API}/api/orders`, orderData);
       if (res.status === 201) {
         dispatch(reset());
+        await persistor.flush();
         router.push(`/orders/${res.data._id}`);
       }
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleCOD = async () => {
+    if (!deliveryDate || !deliverySlot) {
+      return alert("Please select delivery date and slot before placing order.");
+    }
+    await createOrder({
+      customer: session.user.name,
+      address: "User address here",
+      total: cart.total,
+      method: 0,
+      deliveryDate,
+      deliverySlot,
+    });
   };
 
   const ButtonWrapper = ({ currency }) => {
@@ -47,25 +64,26 @@ const Checkout = () => {
         style={{ layout: "vertical" }}
         createOrder={(data, actions) =>
           actions.order.create({
-            purchase_units: [
-              { amount: { currency_code: currency, value: cart.total } },
-            ],
+            purchase_units: [{ amount: { currency_code: currency, value: cart.total } }],
           })
         }
-        onApprove={(data, actions) =>
-          actions.order.capture().then((details) => {
-            const shipping = details.purchase_units[0].shipping;
-            createOrder({
-              customer: shipping.name.full_name,
-              address: shipping.address.address_line_1,
-              total: cart.total,
-              method: 1, // PayPal
-            });
-          })
-        }
+        onApprove={async (data, actions) => {
+          const details = await actions.order.capture();
+          const shipping = details.purchase_units[0].shipping;
+          await createOrder({
+            customer: shipping.name.full_name,
+            address: shipping.address.address_line_1,
+            total: cart.total,
+            method: 1,
+            deliveryDate,
+            deliverySlot,
+          });
+        }}
       />
     );
   };
+
+  console.log("mehmet cart",cart)
 
   return (
     <div className={styles.container}>
@@ -125,17 +143,7 @@ const Checkout = () => {
         </div>
 
         <div className={styles.paymentButtons}>
-          <button
-            className={styles.codButton}
-            onClick={() =>
-              createOrder({
-                customer: session.user.name,
-                address: "User address here",
-                total: cart.total,
-                method: 0, // Cash
-              })
-            }
-          >
+          <button className={styles.codButton} onClick={handleCOD}>
             Cash on Delivery
           </button>
 

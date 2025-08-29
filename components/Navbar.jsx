@@ -11,12 +11,11 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: session, status } = useSession();
 
-  // Close mobile menu after clicking a link
   const handleLinkClick = () => setMenuOpen(false);
 
   return (
     <div className={styles.container}>
-      {/* Left side: Call info */}
+      {/* Left: Call info */}
       <div className={styles.item}>
         <div className={styles.callButton}>
           <Image src="/img/telephone.png" alt="Phone" width={32} height={32} />
@@ -36,29 +35,19 @@ const Navbar = () => {
           <Link href="/catering" passHref>
             <li className={styles.listItem} onClick={handleLinkClick}>Catering</li>
           </Link>
-
           {status === "authenticated" && session?.user?.role === "admin" && (
             <Link href="/admin" passHref>
               <li className={styles.listItem} onClick={handleLinkClick}>Admin</li>
             </Link>
           )}
-
           <Link href="/" passHref>
             <li className={styles.listItem} onClick={handleLinkClick}>
-              <Image
-                className={styles.logo}
-                src="/img/noordon.png"
-                alt="Noordon Logo"
-                width={140}
-                height={140}
-              />
+              <Image className={styles.logo} src="/img/noordon.png" alt="Noordon Logo" width={140} height={140} />
             </li>
           </Link>
-
           <Link href="/contact" passHref>
             <li className={styles.listItem} onClick={handleLinkClick}>Contact</li>
           </Link>
-
           {status !== "authenticated" ? (
             <Link href="/login" passHref>
               <li className={styles.listItem} onClick={handleLinkClick}>Login</li>
@@ -66,11 +55,7 @@ const Navbar = () => {
           ) : (
             <li
               className={styles.listItem}
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                signOut({ callbackUrl: "/" });
-                handleLinkClick();
-              }}
+              onClick={() => { signOut({ callbackUrl: "/" }); handleLinkClick(); }}
             >
               Logout
             </li>

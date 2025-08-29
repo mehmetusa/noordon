@@ -3,9 +3,15 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "../styles/Product.module.css";
+import { useRouter } from "next/router";
 
 const Products = ({ products, categories, activeCategory }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const router = useRouter();
+
+  const handleCategoryClick = () => {
+    setShowDropdown(false); // close dropdown after click
+  };
 
   return (
     <div className={styles.container}>
@@ -21,13 +27,13 @@ const Products = ({ products, categories, activeCategory }) => {
         <aside className={styles.sidebar}>
           <h3 className={styles.sidebarTitle}>Categories</h3>
 
-          {/* Mobile dropdown button */}
+          {/* Mobile dropdown */}
           <div className={styles.mobileDropdown}>
             <button
               className={styles.dropdownButton}
               onClick={() => setShowDropdown((prev) => !prev)}
             >
-              {activeCategory} ▼
+              {activeCategory} <span className="arrow">▼</span>
             </button>
             {showDropdown && (
               <ul className={styles.categoryListDropdown}>
@@ -37,6 +43,7 @@ const Products = ({ products, categories, activeCategory }) => {
                     className={`${styles.catLink} ${
                       activeCategory === "All" ? styles.activeCat : ""
                     }`}
+                    onClick={handleCategoryClick}
                   >
                     All Products
                   </Link>
@@ -48,6 +55,7 @@ const Products = ({ products, categories, activeCategory }) => {
                       className={`${styles.catLink} ${
                         activeCategory === cat.name ? styles.activeCat : ""
                       }`}
+                      onClick={handleCategoryClick}
                     >
                       {cat.name}
                     </Link>
